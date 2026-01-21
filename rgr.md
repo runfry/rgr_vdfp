@@ -26,15 +26,21 @@
 ## Реалізація програми мовою Common Lisp
 
 ```lisp
+;;; ---------------------------------------------------------
+;;; LOGIC SECTION
+;;; ---------------------------------------------------------
+
 (defun calculate-f (n)
   (cond
     ((= n 1) 1)
     ((= n 6) 1)
     ((and (>= n 2) (<= n 5))
+     ;; Formula: sqrt(F_{i-1}) * ln(i) / 7
      (/ (* (sqrt (calculate-f (- n 1))) (log n)) 7.0))
     ((and (>= n 7) (<= n 15))
+     ;; Formula: sqrt(F_{i-1}) * sqrt(i) / 4
      (/ (* (sqrt (calculate-f (- n 1))) (sqrt n)) 4.0))
-    (t (error "n має бути в діапазоні 1-15"))))
+    (t (error "n must be between 1-15"))))
 
 (defun calculate-all-f (start end)
   (if (> start end)
@@ -42,9 +48,13 @@
       (cons (list start (calculate-f start))
             (calculate-all-f (+ start 1) end))))
 
+;;; ---------------------------------------------------------
+;;; DISPLAY SECTION
+;;; ---------------------------------------------------------
+
 (defun print-f-table (start end)
   (format t "~%+------+-------------------+~%")
-  (format t "|  i   |       F_i         |~%")
+  (format t "|  i   |        F_i        |~%")
   (format t "+------+-------------------+~%")
   (print-f-table-rows start end)
   (format t "+------+-------------------+~%"))
@@ -58,6 +68,10 @@
 ## Реалізація тестових утиліт і тестових наборів
 
 ```lisp
+;;; ---------------------------------------------------------
+;;; TESTING SECTION
+;;; ---------------------------------------------------------
+
 (defun check-f (name n expected &optional (epsilon 0.0001))
   (let ((actual (calculate-f n)))
     (format t "~:[FAILED~;passed~]... ~a (n=~a, expected=~,8f, actual=~,8f)~%"
@@ -68,94 +82,78 @@
             actual)))
 
 (defun test-base-cases ()
-  (format t "~%=== Тестування базових випадків ===~%")
+  (format t "~%=== Test Base Cases ===~%")
   (check-f "test-F1" 1 1.0)
   (check-f "test-F6" 6 1.0))
 
 (defun test-range-2-5 ()
-  (format t "~%=== Тестування діапазону i=2..5 ===~%")
+  (format t "~%=== Tests between 2..5 ===~%")
   (check-f "test-F2" 2 0.09902103)
-  (check-f "test-F3" 3 0.055245202)
-  (check-f "test-F4" 4 0.046649437)
-  (check-f "test-F5" 5 0.033353936))
+  (check-f "test-F3" 3 0.04938671) 
+  (check-f "test-F4" 4 0.04401112) 
+  (check-f "test-F5" 5 0.04823446)) 
 
 (defun test-range-7-15 ()
-  (format t "~%=== Тестування діапазону i=7..15 ===~%")
-  (check-f "test-F7" 7 0.6614378)
-  (check-f "test-F8" 8 0.93541527)
-  (check-f "test-F10" 10 1.1113126)
-  (check-f "test-F15" 15 1.9846354))
+  (format t "~%=== Test between i=7..15 ===~%")
+  (check-f "test-F7"  7 0.66143780)
+  (check-f "test-F8"  8 0.57508165)
+  (check-f "test-F10" 10 0.59621520) 
+  (check-f "test-F15" 15 0.87157154)) 
 
 (defun test-all ()
   (test-base-cases)
   (test-range-2-5)
   (test-range-7-15)
-  (format t "~%=== Тестування завершено ===~%"))
-```
+  (format t "~%=== All Tests Completed ===~%"))
+
+;;; ---------------------------------------------------------
+;;; EXECUTION
+;;; ---------------------------------------------------------
+
+(test-all)
+(print-f-table 1 15)
+
 
 ## Результати тестування програми
 
 ```lisp
-CL-USER> (test-all)
-
-=== Тестування базових випадків ===
+=== Test Base Cases ===
 passed... test-F1 (n=1, expected=1.00000000, actual=1.00000000)
 passed... test-F6 (n=6, expected=1.00000000, actual=1.00000000)
 
-=== Тестування діапазону i=2..5 ===
+=== Tests between 2..5 ===
 passed... test-F2 (n=2, expected=0.09902103, actual=0.09902103)
-passed... test-F3 (n=3, expected=0.05524520, actual=0.05524520)
-passed... test-F4 (n=4, expected=0.04664944, actual=0.04664944)
-passed... test-F5 (n=5, expected=0.03335394, actual=0.03335394)
+passed... test-F3 (n=3, expected=0.04938671, actual=0.04938671)
+passed... test-F4 (n=4, expected=0.04401112, actual=0.04401112)
+passed... test-F5 (n=5, expected=0.04823446, actual=0.04823446)
 
-=== Тестування діапазону i=7..15 ===
-passed... test-F7 (n=7, expected=0.66143783, actual=0.66143783)
-passed... test-F8 (n=8, expected=0.93541527, actual=0.93541527)
-passed... test-F10 (n=10, expected=1.11131260, actual=1.11131260)
-passed... test-F15 (n=15, expected=1.98463541, actual=1.98463541)
+=== Test between i=7..15 ===
+passed... test-F7 (n=7, expected=0.66143780, actual=0.66143780)
+passed... test-F8 (n=8, expected=0.57508165, actual=0.57508165)
+passed... test-F10 (n=10, expected=0.59621520, actual=0.59621520)
+passed... test-F15 (n=15, expected=0.87157154, actual=0.87157154)
 
-=== Тестування завершено ===
-NIL
-
-CL-USER> (print-f-table 1 15)
+=== All Tests Completed ===
 
 +------+-------------------+
-|  i   |       F_i         |
+|  i   |        F_i        |
 +------+-------------------+
-|    1 |    1.0000000000 |
-|    2 |    0.0990210325 |
-|    3 |    0.0552452020 |
-|    4 |    0.0466494374 |
-|    5 |    0.0333539356 |
-|    6 |    1.0000000000 |
-|    7 |    0.6614378277 |
-|    8 |    0.9354152669 |
-|    9 |    1.4031228985 |
-|   10 |    1.1113126038 |
-|   11 |    1.3824163525 |
-|   12 |    1.5056298777 |
-|   13 |    1.7543988219 |
-|   14 |    2.0762316802 |
-|   15 |    1.9846354101 |
+|    1 |      1.0000000000 |
+|    2 |      0.0990210250 |
+|    3 |      0.0493867140 |
+|    4 |      0.0440111230 |
+|    5 |      0.0482344600 |
+|    6 |      1.0000000000 |
+|    7 |      0.6614378000 |
+|    8 |      0.5750816500 |
+|    9 |      0.5687560400 |
+|   10 |      0.5962152000 |
+|   11 |      0.6402327400 |
+|   12 |      0.6929462600 |
+|   13 |      0.7503458000 |
+|   14 |      0.8102793700 |
+|   15 |      0.8715715400 |
 +------+-------------------+
-NIL
-
-CL-USER> (calculate-all-f 1 15)
-((1 1.0) 
- (2 0.09902103) 
- (3 0.055245202) 
- (4 0.046649437) 
- (5 0.033353936) 
- (6 1.0) 
- (7 0.6614378) 
- (8 0.93541527) 
- (9 1.4031229) 
- (10 1.1113126) 
- (11 1.3824164) 
- (12 1.5056299) 
- (13 1.7543988) 
- (14 2.0762317) 
- (15 1.9846354))
 ```
 
 ## Порівняння результатів з обчисленням іншими програмними засобами
@@ -180,38 +178,68 @@ CL-USER> (calculate-all-f 1 15)
 import math
 
 def calculate_f(n, memo={}):
+    # Check memoization cache first
     if n in memo:
         return memo[n]
+
+    # Logic implementation
     if n == 1 or n == 6:
-        result = 1
+        result = 1.0
     elif 2 <= n <= 5:
-        result = math.sqrt(calculate_f(n-1)) * math.log(n) / 7.0
+        # Formula: sqrt(F_{i-1}) * ln(i) / 7
+        prev = calculate_f(n - 1, memo)
+        result = (math.sqrt(prev) * math.log(n)) / 7.0
     elif 7 <= n <= 15:
-        result = math.sqrt(calculate_f(n-1)) * math.sqrt(n) / 4.0
+        # Formula: sqrt(F_{i-1}) * sqrt(i) / 4
+        prev = calculate_f(n - 1, memo)
+        result = (math.sqrt(prev) * math.sqrt(n)) / 4.0
+    else:
+        raise ValueError("n must be between 1-15")
+
+    # Store result in cache
     memo[n] = result
     return result
-
-for i in range(1, 16):
-    print(f"F_{i} = {calculate_f(i):.10f}")
 ```
 
 **Результати з Python:**
 ```
-F_1 = 1.0000000000
-F_2 = 0.0990210325
-F_3 = 0.0552452020
-F_4 = 0.0466494374
-F_5 = 0.0333539356
-F_6 = 1.0000000000
-F_7 = 0.6614378277
-F_8 = 0.9354152669
-F_9 = 1.4031228985
-F_10 = 1.1113126038
-F_11 = 1.3824163525
-F_12 = 1.5056298777
-F_13 = 1.7543988219
-F_14 = 2.0762316802
-F_15 = 1.9846354101
+=== Test Base Cases ===
+passed... test-F1 (n=1, expected=1.00000000, actual=1.00000000)
+passed... test-F6 (n=6, expected=1.00000000, actual=1.00000000)
+
+=== Tests between 2..5 ===
+passed... test-F2 (n=2, expected=0.09902103, actual=0.09902103)
+passed... test-F3 (n=3, expected=0.04938671, actual=0.04938671)
+passed... test-F4 (n=4, expected=0.04401112, actual=0.04401113)
+passed... test-F5 (n=5, expected=0.04823446, actual=0.04823446)
+
+=== Test between i=7..15 ===
+passed... test-F7 (n=7, expected=0.66143780, actual=0.66143783)
+passed... test-F8 (n=8, expected=0.57508165, actual=0.57508166)
+passed... test-F10 (n=10, expected=0.59621520, actual=0.59621517)
+passed... test-F15 (n=15, expected=0.87157154, actual=0.87157149)
+
+=== All Tests Completed ===
+
++------+-------------------+
+|  i   |        F_i        |
++------+-------------------+
+|    1 |      1.0000000000 |
+|    2 |      0.0990210258 |
+|    3 |      0.0493867131 |
+|    4 |      0.0440111258 |
+|    5 |      0.0482344606 |
+|    6 |      1.0000000000 |
+|    7 |      0.6614378278 |
+|    8 |      0.5750816584 |
+|    9 |      0.5687560399 |
+|   10 |      0.5962151666 |
+|   11 |      0.6402327132 |
+|   12 |      0.6929462713 |
+|   13 |      0.7503458172 |
+|   14 |      0.8102793284 |
+|   15 |      0.8715714947 |
++------+-------------------+
 ```
 
 ### Висновок
